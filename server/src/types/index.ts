@@ -1,21 +1,3 @@
-import { ObjectId } from "mongodb";
-
-export interface Comment {
-  author: string;
-  body: string;
-}
-
-export interface Post {
-  _id?: ObjectId;
-  author: string;
-  title: string;
-  tags: string[];
-  body: string;
-  date: Date;
-  comments?: Comment[];
-}
-
-export interface PostDocument extends Post {
-  _id: ObjectId;
-}
-
+// Types are now defined in the Mongoose model
+// Re-export for backwards compatibility
+export type { IComment as Comment, IPost as Post } from "../models/Post.js";

@@ -1,35 +1,27 @@
 import express, { Request, Response } from "express";
-import { ObjectId, Collection } from "mongodb";
-import { db } from "../db/conn.js";
-import type { Post, PostDocument, Comment } from "../types/index.js";
+import { Post } from "../models/Post.js";
+import type { IComment } from "../models/Post.js";
 
 const router = express.Router();
 
 // Get a list of 50 posts
 router.get("/", async (_req: Request, res: Response): Promise<void> => {
-  const collection: Collection<PostDocument> = db.collection("posts");
-  const results = await collection.find({}).limit(50).toArray();
+  const results = await Post.find({}).limit(50);
   res.status(200).send(results);
 });
 
 // Fetches the latest posts
 router.get("/latest", async (_req: Request, res: Response): Promise<void> => {
-  const collection: Collection<PostDocument> = db.collection("posts");
-  const results = await collection
-    .aggregate([
-      { $project: { author: 1, title: 1, tags: 1, date: 1 } },
-      { $sort: { date: -1 } },
-      { $limit: 3 },
-    ])
-    .toArray();
+  const results = await Post.find({})
+    .select("author title tags date")
+    .sort({ date: -1 })
+    .limit(3);
   res.status(200).send(results);
 });
 
 // Get a single post
 router.get("/:id", async (req: Request, res: Response): Promise<void> => {
-  const collection: Collection<PostDocument> = db.collection("posts");
-  const query = { _id: new ObjectId(req.params.id) };
-  const result = await collection.findOne(query);
+  const result = await Post.findById(req.params.id);
 
   if (!result) {
     res.status(404).send("Not found");
@@ -40,12 +32,11 @@ router.get("/:id", async (req: Request, res: Response): Promise<void> => {
 
 // Add a new document to the collection
 router.post("/", async (req: Request, res: Response): Promise<void> => {
-  const collection: Collection<Post> = db.collection("posts");
-  const newDocument: Post = {
+  const newPost = new Post({
     ...req.body,
     date: new Date(),
-  };
-  const result = await collection.insertOne(newDocument);
+  });
+  const result = await newPost.save();
   res.status(201).send(result);
 });
 
@@ -53,25 +44,20 @@ router.post("/", async (req: Request, res: Response): Promise<void> => {
 router.patch(
   "/comment/:id",
   async (req: Request, res: Response): Promise<void> => {
-    const query = { _id: new ObjectId(req.params.id) };
-    const comment: Comment = req.body;
-    const updates = {
-      $push: { comments: comment },
-    };
-
-    const collection: Collection<PostDocument> = db.collection("posts");
-    const result = await collection.updateOne(query, updates);
+    const comment: IComment = req.body;
+    const result = await Post.findByIdAndUpdate(
+      req.params.id,
+      { $push: { comments: comment } },
+      { new: true }
+    );
     res.status(200).send(result);
   }
 );
 
 // Delete an entry
 router.delete("/:id", async (req: Request, res: Response): Promise<void> => {
-  const query = { _id: new ObjectId(req.params.id) };
-  const collection: Collection<PostDocument> = db.collection("posts");
-  const result = await collection.deleteOne(query);
+  const result = await Post.findByIdAndDelete(req.params.id);
   res.status(200).send(result);
 });
 
 export default router;
-
