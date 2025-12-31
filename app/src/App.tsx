@@ -1,7 +1,8 @@
+import React from "react";
 import "./styles.css";
 import "./fonts.css";
 
-import LeafygreenProvider from '@leafygreen-ui/leafygreen-provider';
+import LeafygreenProvider from "@leafygreen-ui/leafygreen-provider";
 import Layout from "./components/Layout";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -10,8 +11,7 @@ import Archive from "./pages/Archive";
 import Create from "./pages/Create";
 import Post from "./pages/Post";
 
-
-function App() {
+const App: React.FC = () => {
   return (
     <LeafygreenProvider>
       <Router>
@@ -26,6 +26,6 @@ function App() {
       </Router>
     </LeafygreenProvider>
   );
-}
+};
 
 export default App;

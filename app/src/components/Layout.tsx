@@ -1,3 +1,4 @@
+import React from "react";
 import Header from "./Header";
 import Navigation from "./Navigation";
 import { css } from "@leafygreen-ui/emotion";
@@ -34,11 +35,11 @@ const mainStyle = css`
   padding: 12px;
 `;
 
-export default function Layout(props) {
-  return(
+const Layout: React.FC = () => {
+  return (
     <div className={gridStyle}>
       <section className={headerStyle}>
-        <Header title="Sample Blog"/>
+        <Header title="Sample Blog" />
       </section>
       <Navigation className={sideNavStyle} />
 
@@ -46,5 +47,8 @@ export default function Layout(props) {
         <Outlet />
       </section>
     </div>
-  )
-}
+  );
+};
+
+export default Layout;
+
